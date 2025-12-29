@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🗺️ 서울 호텔 검색</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
     <style>
         * {
             margin: 0;
@@ -181,7 +182,8 @@
         <button class="btn-primary" onclick="searchHotels()">🔍 검색</button>
         <button class="btn-secondary" onclick="searchInBounds()">📍 현재 지도 영역</button>
         <button class="btn-secondary" onclick="showTopRanked()">⭐ 인기 호텔</button>
-        <button class="btn-danger" onclick="clearMarkers()">✕ 초기화</button>
+        <button class="btn-secondary" onclick="toggleDrawMode()" id="drawBtn">✏️ 폴리곤 그리기</button>
+        <button class="btn-danger" onclick="clearAll()">✕ 전체 초기화</button>
         <div class="stats">
             <span>표시: <span class="stat-value" id="hotelCount">0</span>개</span>
             <span style="margin-left: 15px;">전체: <span class="stat-value" id="totalCount">0</span>개</span>
@@ -191,11 +193,15 @@
     <div id="map"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
     <script>
         let map;
         let markers = [];
         let allHotels = [];
         let filteredHotels = [];
+        let drawnItems;
+        let drawControl;
+        let currentPolygon = null;
 
         // 데이터 로드
         async function loadHotels() {
@@ -222,6 +228,56 @@
                 attribution: '© OpenStreetMap contributors',
                 maxZoom: 19
             }).addTo(map);
+
+            // 그리기 레이어 초기화
+            drawnItems = new L.FeatureGroup();
+            map.addLayer(drawnItems);
+
+            // 그리기 컨트롤 (기본적으로 숨김)
+            drawControl = new L.Control.Draw({
+                draw: {
+                    polygon: {
+                        shapeOptions: {
+                            color: '#667eea',
+                            fillOpacity: 0.2
+                        }
+                    },
+                    polyline: false,
+                    rectangle: true,
+                    circle: false,
+                    marker: false,
+                    circlemarker: false
+                },
+                edit: {
+                    featureGroup: drawnItems,
+                    remove: true
+                }
+            });
+
+            // 폴리곤 그리기 완료 이벤트
+            map.on(L.Draw.Event.CREATED, function (event) {
+                const layer = event.layer;
+                drawnItems.addLayer(layer);
+                currentPolygon = layer;
+
+                // 폴리곤 내부 호텔 검색
+                searchInPolygon(layer);
+            });
+
+            // 폴리곤 편집 이벤트
+            map.on(L.Draw.Event.EDITED, function (event) {
+                const layers = event.layers;
+                layers.eachLayer(function (layer) {
+                    currentPolygon = layer;
+                    searchInPolygon(layer);
+                });
+            });
+
+            // 폴리곤 삭제 이벤트
+            map.on(L.Draw.Event.DELETED, function () {
+                currentPolygon = null;
+                clearMarkers();
+            });
         }
 
         // 마커 추가
@@ -246,6 +302,60 @@
             markers.forEach(marker => map.removeLayer(marker));
             markers = [];
             document.getElementById('hotelCount').textContent = 0;
+        }
+
+        // 전체 초기화 (마커 + 폴리곤)
+        function clearAll() {
+            clearMarkers();
+            drawnItems.clearLayers();
+            currentPolygon = null;
+        }
+
+        // 폴리곤 그리기 모드 토글
+        function toggleDrawMode() {
+            const btn = document.getElementById('drawBtn');
+
+            if (map.hasControl(drawControl)) {
+                map.removeControl(drawControl);
+                btn.textContent = '✏️ 폴리곤 그리기';
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-secondary');
+            } else {
+                map.addControl(drawControl);
+                btn.textContent = '❌ 그리기 종료';
+                btn.classList.remove('btn-secondary');
+                btn.classList.add('btn-primary');
+            }
+        }
+
+        // 폴리곤 내부 호텔 검색
+        function searchInPolygon(polygonLayer) {
+            clearMarkers();
+
+            const polygon = polygonLayer.toGeoJSON();
+
+            filteredHotels = allHotels.filter(hotel => {
+                const coords = hotel.location.coordinates;
+                const point = [coords[1], coords[0]]; // [lat, lon]
+
+                return polygonLayer.getBounds().contains(point);
+            });
+
+            // 랭킹 순 정렬
+            filteredHotels.sort((a, b) => b.rankScore - a.rankScore);
+
+            if (filteredHotels.length === 0) {
+                alert('이 영역에는 호텔이 없습니다');
+                return;
+            }
+
+            // 상위 100개만 표시
+            const displayHotels = filteredHotels.slice(0, 100);
+            displayHotels.forEach(hotel => addMarker(hotel));
+
+            document.getElementById('hotelCount').textContent = displayHotels.length;
+
+            console.log(`✅ 폴리곤 내 ${displayHotels.length}개 호텔 발견`);
         }
 
         // 검색 함수 (JavaScript 기반)
