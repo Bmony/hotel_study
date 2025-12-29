@@ -313,18 +313,25 @@
 
         // 폴리곤 그리기 모드 토글
         function toggleDrawMode() {
+            console.log('✏️ toggleDrawMode 호출됨');
+            console.log('drawControl:', drawControl);
+            console.log('map:', map);
+
             const btn = document.getElementById('drawBtn');
 
             if (map.hasControl(drawControl)) {
+                console.log('❌ 그리기 모드 종료');
                 map.removeControl(drawControl);
                 btn.textContent = '✏️ 폴리곤 그리기';
                 btn.classList.remove('btn-primary');
                 btn.classList.add('btn-secondary');
             } else {
+                console.log('✅ 그리기 모드 시작');
                 map.addControl(drawControl);
                 btn.textContent = '❌ 그리기 종료';
                 btn.classList.remove('btn-secondary');
                 btn.classList.add('btn-primary');
+                alert('✏️ 왼쪽 지도 도구에서 🔷(폴리곤) 또는 ▢(사각형)을 클릭하세요!');
             }
         }
 
