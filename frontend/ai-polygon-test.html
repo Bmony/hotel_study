@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 폴리곤 생성 & 조정 테스트</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 400px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .map-container {
+            flex: 1;
+            position: relative;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        h2 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .secondary-btn {
+            background: #2196F3;
+        }
+
+        .secondary-btn:hover {
+            background: #0b7dda;
+        }
+
+        .results {
+            margin-top: 15px;
+            padding: 12px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .results h3 {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .results p {
+            margin: 4px 0;
+            color: #666;
+        }
+
+        .results .highlight {
+            color: #4CAF50;
+            font-weight: 600;
+        }
+
+        .error {
+            color: #f44336;
+            background: #ffebee;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .quick-commands {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .quick-commands button {
+            font-size: 12px;
+            padding: 8px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #4CAF50;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .legend h4 {
+            font-size: 13px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 12px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            margin-right: 8px;
+            border: 2px solid #333;
+        }
+
+        .strategy-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .strategy-card:hover {
+            border-color: #4CAF50;
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+        }
+
+        .strategy-card.high {
+            border-left: 4px solid #f44336;
+        }
+
+        .strategy-card.medium {
+            border-left: 4px solid #FF9800;
+        }
+
+        .strategy-card.low {
+            border-left: 4px solid #9E9E9E;
+        }
+
+        .strategy-command {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+            font-size: 13px;
+        }
+
+        .strategy-reason {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .strategy-impact {
+            font-size: 11px;
+            color: #4CAF50;
+        }
+
+        .strategy-priority {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+
+        .priority-high {
+            background: #ffebee;
+            color: #f44336;
+        }
+
+        .priority-medium {
+            background: #fff3e0;
+            color: #FF9800;
+        }
+
+        .priority-low {
+            background: #f5f5f5;
+            color: #9E9E9E;
+        }
+
+        .characteristics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .char-item {
+            background: #f9f9f9;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .char-label {
+            color: #999;
+            margin-bottom: 2px;
+        }
+
+        .char-value {
+            color: #333;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h1>🤖 AI 폴리곤 테스트</h1>
+
+            <!-- 1. 폴리곤 생성 -->
+            <div class="section">
+                <h2>1️⃣ 검색어 기반 폴리곤 생성</h2>
+                <div class="input-group">
+                    <label for="searchQuery">검색어 입력</label>
+                    <input type="text" id="searchQuery" placeholder="예: 잠실, 강남, 명동" />
+                </div>
+                <button id="generateBtn">폴리곤 생성</button>
+
+                <div id="generateResults" class="results" style="display: none;">
+                    <h3>생성 결과</h3>
+                    <p>확장된 장소: <span id="expandedPlaces"></span></p>
+                    <p>좌표 개수: <span class="highlight" id="coordCount"></span></p>
+                </div>
+
+                <!-- 지역 특성 -->
+                <div id="characteristics" style="display: none; margin-top: 15px;">
+                    <h3 style="font-size: 14px; margin-bottom: 8px;">📊 지역 특성</h3>
+                    <div class="characteristics" id="charGrid"></div>
+                </div>
+
+                <!-- 전략 제안 -->
+                <div id="strategies" style="display: none; margin-top: 15px;">
+                    <h3 style="font-size: 14px; margin-bottom: 8px;">💡 추천 전략 (클릭 시 적용)</h3>
+                    <div id="strategyList"></div>
+                </div>
+            </div>
+
+            <!-- 2. 폴리곤 조정 -->
+            <div class="section">
+                <h2>2️⃣ 자연어 명령으로 폴리곤 조정</h2>
+                <div class="input-group">
+                    <label for="adjustCommand">조정 명령 입력</label>
+                    <input type="text" id="adjustCommand" placeholder="예: 500m 확장, 300m 축소" />
+                </div>
+                <button id="adjustBtn" class="secondary-btn" disabled>폴리곤 조정</button>
+
+                <div class="quick-commands">
+                    <button class="quick-cmd" data-cmd="500m 확장">500m 확장</button>
+                    <button class="quick-cmd" data-cmd="300m 축소">300m 축소</button>
+                    <button class="quick-cmd" data-cmd="관광지 기준으로 변경">관광지 기준</button>
+                    <button class="quick-cmd" data-cmd="200m 확장">200m 확장</button>
+                </div>
+
+                <div id="adjustResults" class="results" style="display: none;">
+                    <h3>조정 결과</h3>
+                    <p>명령: <span id="adjustedCommand"></span></p>
+                    <p>변경된 좌표: <span class="highlight" id="adjustedCoordCount"></span></p>
+                </div>
+            </div>
+
+            <!-- 3. 호텔 검색 통계 -->
+            <div class="section">
+                <h2>3️⃣ 호텔 검색 결과</h2>
+                <button id="searchHotelsBtn" class="secondary-btn" disabled>호텔 검색</button>
+
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="hotelCount">0</div>
+                        <div class="stat-label">검색된 호텔</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="searchTime">0ms</div>
+                        <div class="stat-label">검색 시간</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="loading" id="loading">
+                <p>⏳ 처리 중...</p>
+            </div>
+
+            <div id="error" class="error" style="display: none;"></div>
+        </div>
+
+        <div class="map-container">
+            <div id="map"></div>
+
+            <div class="legend">
+                <h4>범례</h4>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: rgba(76, 175, 80, 0.2);"></div>
+                    <span>생성된 폴리곤</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: rgba(33, 150, 243, 0.2);"></div>
+                    <span>조정된 폴리곤</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const API_BASE = 'http://localhost:5001/api';
+
+        // 지도 초기화 (서울 중심)
+        const map = L.map('map').setView([37.5665, 126.9780], 11);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // 상태 관리
+        let originalPolygon = null;  // 최초 생성된 원본 폴리곤
+        let currentPolygon = null;   // 현재 표시 중인 폴리곤 (검색용)
+        let selectedHotelNames = [];  // POI 기반 조정시 선택된 호텔 목록
+        let originalPolygonLayer = null;
+        let adjustedPolygonLayer = null;
+        let hotelMarkers = [];
+
+        // DOM 요소
+        const searchQueryInput = document.getElementById('searchQuery');
+        const generateBtn = document.getElementById('generateBtn');
+        const adjustCommandInput = document.getElementById('adjustCommand');
+        const adjustBtn = document.getElementById('adjustBtn');
+        const searchHotelsBtn = document.getElementById('searchHotelsBtn');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+
+        // 에러 표시
+        function showError(message) {
+            error.textContent = message;
+            error.style.display = 'block';
+            setTimeout(() => {
+                error.style.display = 'none';
+            }, 5000);
+        }
+
+        // 로딩 표시
+        function setLoading(isLoading) {
+            loading.classList.toggle('show', isLoading);
+            generateBtn.disabled = isLoading;
+            adjustBtn.disabled = isLoading || !currentPolygon;
+            searchHotelsBtn.disabled = isLoading || !currentPolygon;
+        }
+
+        // 1. 폴리곤 생성
+        generateBtn.addEventListener('click', async () => {
+            const query = searchQueryInput.value.trim();
+            if (!query) {
+                showError('검색어를 입력해주세요');
+                return;
+            }
+
+            setLoading(true);
+
+            try {
+                const response = await fetch(`${API_BASE}/generate-polygon`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+
+                if (!response.ok) {
+                    throw new Error('폴리곤 생성 실패');
+                }
+
+                const result = await response.json();
+                originalPolygon = result.polygon;  // 원본 저장
+                currentPolygon = result.polygon;   // 현재도 원본으로 설정
+
+                // 기존 레이어 제거
+                if (originalPolygonLayer) map.removeLayer(originalPolygonLayer);
+                if (adjustedPolygonLayer) map.removeLayer(adjustedPolygonLayer);
+                hotelMarkers.forEach(marker => map.removeLayer(marker));
+                hotelMarkers = [];
+
+                // 폴리곤 표시
+                const coords = result.polygon.coordinates[0].map(c => [c[1], c[0]]);
+                originalPolygonLayer = L.polygon(coords, {
+                    color: '#4CAF50',
+                    fillColor: '#4CAF50',
+                    fillOpacity: 0.2,
+                    weight: 3
+                }).addTo(map);
+
+                map.fitBounds(originalPolygonLayer.getBounds());
+
+                // 결과 표시
+                document.getElementById('expandedPlaces').textContent = result.expanded_places.join(', ');
+                document.getElementById('coordCount').textContent = result.polygon.coordinates[0].length;
+                document.getElementById('generateResults').style.display = 'block';
+
+                // 지역 특성 표시
+                if (result.area_characteristics) {
+                    const char = result.area_characteristics;
+                    const charGrid = document.getElementById('charGrid');
+                    charGrid.innerHTML = `
+                        <div class="char-item">
+                            <div class="char-label">관광지</div>
+                            <div class="char-value">${char.tourism_count}개 (${char.tourism_density})</div>
+                        </div>
+                        <div class="char-item">
+                            <div class="char-label">지하철역</div>
+                            <div class="char-value">${char.transit_count}개 (${char.transit_access})</div>
+                        </div>
+                        <div class="char-item">
+                            <div class="char-label">음식점</div>
+                            <div class="char-value">${char.restaurant_count}개 (${char.restaurant_density})</div>
+                        </div>
+                        <div class="char-item">
+                            <div class="char-label">면적</div>
+                            <div class="char-value">${char.area_km2} km²</div>
+                        </div>
+                    `;
+                    document.getElementById('characteristics').style.display = 'block';
+                }
+
+                // 전략 제안 표시
+                if (result.strategies && result.strategies.length > 0) {
+                    const strategyList = document.getElementById('strategyList');
+                    strategyList.innerHTML = result.strategies.map(strategy => `
+                        <div class="strategy-card ${strategy.priority}" onclick="applyStrategy('${strategy.command}')">
+                            <div class="strategy-command">
+                                ${strategy.command}
+                                <span class="strategy-priority priority-${strategy.priority}">${strategy.priority.toUpperCase()}</span>
+                            </div>
+                            <div class="strategy-reason">${strategy.reason}</div>
+                            <div class="strategy-impact">💎 ${strategy.expected_impact}</div>
+                        </div>
+                    `).join('');
+                    document.getElementById('strategies').style.display = 'block';
+                }
+
+                // 버튼 활성화
+                adjustBtn.disabled = false;
+                searchHotelsBtn.disabled = false;
+
+            } catch (err) {
+                showError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // 2. 폴리곤 조정
+        async function adjustPolygon(command) {
+            if (!originalPolygon) {
+                showError('먼저 폴리곤을 생성해주세요');
+                return;
+            }
+
+            setLoading(true);
+
+            try {
+                const response = await fetch(`${API_BASE}/adjust-polygon`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        polygon: originalPolygon,  // 항상 원본 기준으로 조정
+                        command
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('폴리곤 조정 실패');
+                }
+
+                const result = await response.json();
+                currentPolygon = result.adjusted;  // 현재 폴리곤만 업데이트
+                selectedHotelNames = result.selected_hotel_names || [];  // 선택된 호텔 목록 저장
+
+                console.log('선택된 호텔:', selectedHotelNames.length > 0 ? `${selectedHotelNames.length}개` : '전체');
+
+                // 조정된 폴리곤 표시
+                if (adjustedPolygonLayer) map.removeLayer(adjustedPolygonLayer);
+
+                const coords = result.adjusted.coordinates[0].map(c => [c[1], c[0]]);
+                adjustedPolygonLayer = L.polygon(coords, {
+                    color: '#2196F3',
+                    fillColor: '#2196F3',
+                    fillOpacity: 0.2,
+                    weight: 3,
+                    dashArray: '10, 5'
+                }).addTo(map);
+
+                map.fitBounds(adjustedPolygonLayer.getBounds());
+
+                // 결과 표시
+                document.getElementById('adjustedCommand').textContent = command;
+                document.getElementById('adjustedCoordCount').textContent = result.adjusted.coordinates[0].length;
+                document.getElementById('adjustResults').style.display = 'block';
+
+            } catch (err) {
+                showError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        adjustBtn.addEventListener('click', () => {
+            const command = adjustCommandInput.value.trim();
+            if (!command) {
+                showError('조정 명령을 입력해주세요');
+                return;
+            }
+            adjustPolygon(command);
+        });
+
+        // 빠른 명령 버튼
+        document.querySelectorAll('.quick-cmd').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (!originalPolygon) {
+                    showError('먼저 폴리곤을 생성해주세요');
+                    return;
+                }
+                const command = btn.getAttribute('data-cmd');
+                adjustCommandInput.value = command;
+                adjustPolygon(command);
+            });
+        });
+
+        // 3. 호텔 검색
+        searchHotelsBtn.addEventListener('click', async () => {
+            if (!currentPolygon) {
+                showError('먼저 폴리곤을 생성해주세요');
+                return;
+            }
+
+            setLoading(true);
+
+            try {
+                const response = await fetch(`${API_BASE}/search-hotels`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        polygon: currentPolygon,
+                        selected_hotel_names: selectedHotelNames  // POI 기반 조정시 필터링용
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('호텔 검색 실패');
+                }
+
+                const result = await response.json();
+
+                console.log('검색 결과:', result.count, '개 호텔');
+                if (result.hotels.length > 0) {
+                    console.log('첫 번째 호텔 데이터:', result.hotels[0]);
+                }
+
+                // 기존 마커 제거
+                hotelMarkers.forEach(marker => map.removeLayer(marker));
+                hotelMarkers = [];
+
+                // 호텔 마커 표시
+                result.hotels.forEach(hotel => {
+                    // location이 geo_point 타입이면 coordinates 배열 [lon, lat]
+                    const coords = hotel.location.coordinates || [hotel.location.lon, hotel.location.lat];
+                    const lat = coords[1];
+                    const lon = coords[0];
+
+                    const marker = L.marker([lat, lon], {
+                        icon: L.icon({
+                            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                            iconSize: [25, 41],
+                            iconAnchor: [12, 41],
+                            popupAnchor: [1, -34],
+                            shadowSize: [41, 41]
+                        })
+                    }).addTo(map);
+
+                    const address = hotel.address?.full || hotel.address || '';
+                    const rating = hotel.rating || 0;
+                    const category = hotel.category || '';
+
+                    marker.bindPopup(`
+                        <b>${hotel.name}</b><br>
+                        <small>${category}</small><br>
+                        ${address}<br>
+                        ${rating > 0 ? '⭐ ' + rating : ''}
+                    `);
+
+                    hotelMarkers.push(marker);
+                });
+
+                // 통계 표시
+                document.getElementById('hotelCount').textContent = result.count;
+                document.getElementById('searchTime').textContent = result.took + 'ms';
+
+            } catch (err) {
+                showError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // Enter 키 처리
+        searchQueryInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') generateBtn.click();
+        });
+
+        adjustCommandInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') adjustBtn.click();
+        });
+
+        // 전략 카드 클릭 시 적용
+        window.applyStrategy = function(command) {
+            if (!originalPolygon) {
+                showError('먼저 폴리곤을 생성해주세요');
+                return;
+            }
+            adjustCommandInput.value = command;
+            adjustPolygon(command);
+        };
+    </script>
+</body>
+</html>

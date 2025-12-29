@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🗺️ 호텔 지도 검색</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .controls {
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        
+        .btn-secondary {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #38a169;
+        }
+        
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+        
+        .stats {
+            padding: 8px 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        #map {
+            flex: 1;
+            width: 100%;
+        }
+        
+        .leaflet-popup-content {
+            margin: 10px;
+        }
+        
+        .popup-hotel-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+        
+        .popup-address {
+            font-size: 13px;
+            color: #718096;
+            margin-bottom: 8px;
+        }
+        
+        .popup-coords {
+            font-size: 12px;
+            color: #a0aec0;
+        }
+        
+        .popup-facilities {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        
+        .popup-facility {
+            background: #e6f2ff;
+            color: #667eea;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🗺️ 서울 호텔 지도 검색</h1>
+        <p style="font-size: 14px; opacity: 0.9;">지도를 드래그하거나 검색해서 호텔을 찾아보세요</p>
+    </div>
+    
+    <div class="controls">
+        <input type="text" 
+               class="search-input" 
+               id="searchInput" 
+               placeholder="호텔 이름 또는 지역 검색..."
+               onkeypress="if(event.key==='Enter') searchHotels()">
+        <button class="btn-primary" onclick="searchHotels()">🔍 검색</button>
+        <button class="btn-secondary" onclick="searchInBounds()">📍 현재 지도 영역 검색</button>
+        <button class="btn-secondary" onclick="goToGangnam()">강남</button>
+        <button class="btn-secondary" onclick="goToMyeongdong()">명동</button>
+        <button class="btn-secondary" onclick="goToHongdae()">홍대</button>
+        <button class="btn-danger" onclick="clearMarkers()">✕ 마커 지우기</button>
+        <div class="stats">
+            <span>호텔: <span class="stat-value" id="hotelCount">0</span>개</span>
+            <span style="margin-left: 15px;">응답: <span class="stat-value" id="responseTime">-</span></span>
+        </div>
+    </div>
+    
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const ES_URL = 'http://localhost:9200';
+        let map;
+        let markers = [];
+        
+        // 지도 초기화 (서울 시청 중심)
+        function initMap() {
+            map = L.map('map').setView([37.5665, 126.9780], 12);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+            
+            // 지도 이동/줌 이벤트
+            map.on('moveend', () => {
+                console.log('지도 영역 변경됨');
+            });
+        }
+        
+        // 마커 추가
+        function addMarker(hotel) {
+            const marker = L.marker([hotel.location.lat, hotel.location.lon])
+                .addTo(map)
+                .bindPopup(`
+                    <div class="popup-hotel-name">${hotel.name}</div>
+                    <div class="popup-address">📍 ${hotel.address || hotel.city}</div>
+                    <div class="popup-coords">
+                        🌍 ${hotel.location.lat.toFixed(4)}, ${hotel.location.lon.toFixed(4)}
+                    </div>
+                    ${hotel.facilities && hotel.facilities.length > 0 ? `
+                        <div class="popup-facilities">
+                            ${hotel.facilities.map(f => `<span class="popup-facility">${f}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                `);
+            
+            markers.push(marker);
+        }
+        
+        // 마커 지우기
+        function clearMarkers() {
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+            updateStats(0, '-');
+        }
+        
+        // 통계 업데이트
+        function updateStats(count, time) {
+            document.getElementById('hotelCount').textContent = count;
+            document.getElementById('responseTime').textContent = time;
+        }
+        
+        // 검색 (텍스트)
+        async function searchHotels() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) {
+                alert('검색어를 입력하세요');
+                return;
+            }
+            
+            clearMarkers();
+            
+            try {
+                const response = await fetch(`${ES_URL}/hotels/_search`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        query: {
+                            multi_match: {
+                                query: query,
+                                fields: ["name", "address", "city"]
+                            }
+                        },
+                        size: 100
+                    })
+                });
+                
+                const data = await response.json();
+                const hotels = data.hits.hits.map(h => h._source);
+                
+                updateStats(hotels.length, data.took + 'ms');
+                
+                if (hotels.length === 0) {
+                    alert('검색 결과가 없습니다');
+                    return;
+                }
+                
+                // 마커 추가
+                hotels.forEach(hotel => addMarker(hotel));
+                
+                // 첫 번째 호텔로 이동
+                if (hotels.length > 0) {
+                    map.setView([hotels[0].location.lat, hotels[0].location.lon], 14);
+                }
+                
+            } catch (error) {
+                alert('검색 중 오류: ' + error.message);
+            }
+        }
+        
+        // 현재 지도 영역 검색
+        async function searchInBounds() {
+            clearMarkers();
+            
+            const bounds = map.getBounds();
+            const ne = bounds.getNorthEast();
+            const sw = bounds.getSouthWest();
+            
+            try {
+                const response = await fetch(`${ES_URL}/hotels/_search`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        query: {
+                            geo_bounding_box: {
+                                location: {
+                                    top_left: {
+                                        lat: ne.lat,
+                                        lon: sw.lng
+                                    },
+                                    bottom_right: {
+                                        lat: sw.lat,
+                                        lon: ne.lng
+                                    }
+                                }
+                            }
+                        },
+                        size: 500
+                    })
+                });
+                
+                const data = await response.json();
+                const hotels = data.hits.hits.map(h => h._source);
+                
+                updateStats(hotels.length, data.took + 'ms');
+                
+                hotels.forEach(hotel => addMarker(hotel));
+                
+                if (hotels.length === 0) {
+                    alert('이 지역에는 호텔이 없습니다');
+                }
+                
+            } catch (error) {
+                alert('검색 중 오류: ' + error.message);
+            }
+        }
+        
+        // 지역 바로가기
+        function goToGangnam() {
+            map.setView([37.5048, 127.0495], 14);
+            setTimeout(searchInBounds, 500);
+        }
+        
+        function goToMyeongdong() {
+            map.setView([37.5636, 126.9836], 15);
+            setTimeout(searchInBounds, 500);
+        }
+        
+        function goToHongdae() {
+            map.setView([37.5563, 126.9247], 15);
+            setTimeout(searchInBounds, 500);
+        }
+        
+        // 초기화
+        initMap();
+        
+        // 페이지 로드 시 서울 전체 호텔 표시
+        setTimeout(() => {
+            searchInBounds();
+        }, 1000);
+    </script>
+</body>
+</html>

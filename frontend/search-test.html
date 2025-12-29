@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏨 호텔 검색 테스트</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .search-box {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+        
+        .search-input-wrapper {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        #searchInput {
+            flex: 1;
+            padding: 15px 20px;
+            font-size: 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            outline: none;
+            transition: border 0.3s;
+        }
+        
+        #searchInput:focus {
+            border-color: #667eea;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 15px 25px;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+        }
+        
+        .btn-map {
+            background: #ed8936;
+            color: white;
+        }
+        
+        .btn-map:hover {
+            background: #dd6b20;
+            transform: translateY(-2px);
+        }
+        
+        .search-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .search-type {
+            padding: 10px;
+            background: #f7fafc;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .search-type:hover {
+            border-color: #667eea;
+            background: #edf2f7;
+        }
+        
+        .search-type.active {
+            border-color: #667eea;
+            background: #e6f2ff;
+        }
+        
+        .stats {
+            background: white;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .results {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .result-item {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            transition: background 0.3s;
+        }
+        
+        .result-item:hover {
+            background: #f7fafc;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .hotel-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+        
+        .hotel-address {
+            color: #718096;
+            margin-bottom: 8px;
+        }
+        
+        .hotel-location {
+            font-size: 14px;
+            color: #a0aec0;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .hotel-facilities {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .facility-badge {
+            background: #e6f2ff;
+            color: #667eea;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0aec0;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 18px;
+        }
+        
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏨 호텔 검색 테스트</h1>
+            <p>Elasticsearch + LateRooms.com 스타일</p>
+        </div>
+        
+        <div class="search-box">
+            <div class="search-input-wrapper">
+                <input type="text" 
+                       id="searchInput" 
+                       placeholder="호텔 이름 또는 지역을 입력하세요... (예: 강남, 명동, 롯데호텔)"
+                       onkeypress="if(event.key==='Enter') textSearch()">
+                <button class="btn-primary" onclick="textSearch()">🔍 검색</button>
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn-secondary" onclick="autocomplete()">⚡ 자동완성 테스트</button>
+                <button class="btn-map" onclick="mapSearchGangnam()">📍 강남 지역 검색</button>
+                <button class="btn-map" onclick="mapSearchMyeongdong()">📍 명동 지역 검색</button>
+                <button class="btn-secondary" onclick="nearbySearch()">🎯 주변 5km 검색</button>
+            </div>
+            
+            <div class="search-types">
+                <div class="search-type" onclick="quickSearch('호텔')">🏨 전체 호텔</div>
+                <div class="search-type" onclick="quickSearch('wifi')">📶 WiFi 있는 곳</div>
+                <div class="search-type" onclick="quickSearch('롯데')">🏢 롯데 호텔</div>
+                <div class="search-type" onclick="quickSearch('서울')">🌆 서울 전체</div>
+            </div>
+        </div>
+        
+        <div class="stats" id="stats" style="display:none;">
+            <div class="stat-item">
+                <div class="stat-value" id="resultCount">0</div>
+                <div class="stat-label">검색 결과</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="responseTime">0ms</div>
+                <div class="stat-label">응답 시간</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="searchType">-</div>
+                <div class="stat-label">검색 타입</div>
+            </div>
+        </div>
+        
+        <div id="errorBox"></div>
+        
+        <div class="results" id="results">
+            <div class="no-results">
+                <h2>👆 위에서 검색어를 입력하거나 버튼을 클릭하세요</h2>
+                <p style="margin-top: 10px;">1,118개의 서울 호텔 데이터가 준비되어 있습니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ES_URL = 'http://localhost:9200';
+        
+        function showError(message) {
+            document.getElementById('errorBox').innerHTML = `
+                <div class="error">❌ ${message}</div>
+            `;
+            setTimeout(() => {
+                document.getElementById('errorBox').innerHTML = '';
+            }, 5000);
+        }
+        
+        function showLoading() {
+            document.getElementById('results').innerHTML = `
+                <div class="loading">🔄 검색 중...</div>
+            `;
+        }
+        
+        function showStats(count, time, type) {
+            document.getElementById('stats').style.display = 'flex';
+            document.getElementById('resultCount').textContent = count;
+            document.getElementById('responseTime').textContent = time + 'ms';
+            document.getElementById('searchType').textContent = type;
+        }
+        
+        function renderResults(hits, took) {
+            const resultsDiv = document.getElementById('results');
+            
+            if (hits.length === 0) {
+                resultsDiv.innerHTML = `
+                    <div class="no-results">
+                        <h2>😅 검색 결과가 없습니다</h2>
+                        <p>다른 검색어를 시도해보세요.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            hits.forEach(hit => {
+                const hotel = hit._source;
+                html += `
+                    <div class="result-item">
+                        <div class="hotel-name">${hotel.name || 'Unknown Hotel'}</div>
+                        <div class="hotel-address">📍 ${hotel.address || hotel.city || '주소 정보 없음'}</div>
+                        <div class="hotel-location">
+                            <span>🌍 위도: ${hotel.location.lat.toFixed(4)}</span>
+                            <span>🌍 경도: ${hotel.location.lon.toFixed(4)}</span>
+                            ${hotel.rating ? `<span>⭐ ${hotel.rating}성급</span>` : ''}
+                        </div>
+                        ${hotel.facilities && hotel.facilities.length > 0 ? `
+                            <div class="hotel-facilities">
+                                ${hotel.facilities.map(f => `<span class="facility-badge">${f}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            resultsDiv.innerHTML = html;
+        }
+        
+        async function textSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) {
+                showError('검색어를 입력하세요');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                const response = await fetch(`${ES_URL}/hotels/_search`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        query: {
+                            multi_match: {
+                                query: query,
+                                fields: ["name", "address", "city"]
+                            }
+                        },
+                        size: 20
+                    })
+                });
+                
+                const data = await response.json();
+                showStats(data.hits.total.value, data.took, '텍스트 검색');
+                renderResults(data.hits.hits, data.took);
+            } catch (error) {
+                showError('검색 중 오류 발생: ' + error.message);
+            }
+        }
+        
+        async function autocomplete() {
+            const query = document.getElementById('searchInput').value.trim() || '강남';
+            showLoading();
+            
+            try {
+                const response = await fetch(`${ES_URL}/autocomplete/_search`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        suggest: {
+                            "hotel-suggest": {
+                                prefix: query,
+                                completion: {
+                                    field: "suggest",
+                                    size: 10
+                                }
+                            }
+                        }
+                    })
+                });
+                
+                const data = await response.json();
+                const suggestions = data.suggest['hotel-suggest'][0].options;
+                
+                showStats(suggestions.length, data.took, '자동완성');
+                
+                const html = suggestions.map(s => `
+                    <div class="result-item">
+                        <div class="hotel-name">${s.text}</div>
+                        <div class="hotel-address">타입: ${s._source.type === 'hotel' ? '🏨 호텔' : '📍 목적지'}</div>
+                    </div>
+                `).join('');
+                
+                document.getElementById('results').innerHTML = html || '<div class="no-results">결과 없음</div>';
+            } catch (error) {
+                showError('자동완성 중 오류 발생: ' + error.message);
+            }
+        }
+        
+        async function mapSearchGangnam() {
+            showLoading();
+            
+            try {
+                const response = await fetch(`${ES_URL}/hotels/_search`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        query: {
+                            geo_bounding_box: {
+                                location: {
+                                    top_left: {lat: 37.52, lon: 127.02},
+                                    bottom_right: {lat: 37.49, lon: 127.06}
+                                }
+                            }
+                        },
+                        size: 50
+                    })
+                });
+                
+                const data = await response.json();
+                showStats(data.hits.total.value, data.took, '지도 검색 (강남)');
+                renderResults(data.hits.hits, data.took);
+            } catch (error) {
+                showError('지도 검색 중 오류 발생: ' + error.message);
+            }
+        }
+        
+        async function mapSearchMyeongdong() {
+            showLoading();
+            
+            try {
+                const response = await fetch(`${ES_URL}/hotels/_search`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        query: {
+                            geo_bounding_box: {
+                                location: {
+                                    top_left: {lat: 37.57, lon: 126.98},
+                                    bottom_right: {lat: 37.56, lon: 126.99}
+                                }
+                            }
+                        },
+                        size: 50
+                    })
+                });
+                
+                const data = await response.json();
+                showStats(data.hits.total.value, data.took, '지도 검색 (명동)');
+                renderResults(data.hits.hits, data.took);
+            } catch (error) {
+                showError('지도 검색 중 오류 발생: ' + error.message);
+            }
+        }
+        
+        async function nearbySearch() {
+            showLoading();
+            
+            try {
+                const response = await fetch(`${ES_URL}/hotels/_search`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        query: {
+                            geo_distance: {
+                                distance: "5km",
+                                location: {
+                                    lat: 37.5665,
+                                    lon: 126.9780
+                                }
+                            }
+                        },
+                        sort: [
+                            {
+                                "_geo_distance": {
+                                    location: {
+                                        lat: 37.5665,
+                                        lon: 126.9780
+                                    },
+                                    order: "asc",
+                                    unit: "km"
+                                }
+                            }
+                        ],
+                        size: 20
+                    })
+                });
+                
+                const data = await response.json();
+                showStats(data.hits.total.value, data.took, '주변 검색 (5km)');
+                renderResults(data.hits.hits, data.took);
+            } catch (error) {
+                showError('주변 검색 중 오류 발생: ' + error.message);
+            }
+        }
+        
+        async function quickSearch(keyword) {
+            document.getElementById('searchInput').value = keyword;
+            textSearch();
+        }
+    </script>
+</body>
+</html>

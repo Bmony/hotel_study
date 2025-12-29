@@ -1,0 +1,930 @@
+[
+  {
+    "id": "hotel_368601210",
+    "name": "북촌게스트하우스",
+    "name_en": "Bukchon Guest House",
+    "category": "게스트하우스",
+    "type": "숙박",
+    "address": {
+      "full": "서울특별시 종로구 계동길 89",
+      "city": "서울특별시",
+      "district": "종로구",
+      "street": "계동길 89"
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        126.9865747,
+        37.5813359
+      ]
+    },
+    "keywords": [
+      "게스트하우스",
+      "종로",
+      "북촌게스트하우스",
+      "왕짱구식당",
+      "계동",
+      "CU"
+    ],
+    "synonyms": [],
+    "relatedKeywords": [],
+    "rankScore": 100,
+    "popularity": 1000,
+    "reviewCount": 150,
+    "rating": 5.0,
+    "nearbyPOI": [
+      {
+        "name": "왕짱구식당",
+        "type": "음식점",
+        "distance": 29
+      },
+      {
+        "name": "Unknown",
+        "type": "음식점",
+        "distance": 91
+      },
+      {
+        "name": "CU",
+        "type": "편의점",
+        "distance": 118
+      },
+      {
+        "name": "가회민화박물관",
+        "type": "관광지",
+        "distance": 120
+      },
+      {
+        "name": "북촌한옥마을 ДЕРЕВНЯ",
+        "type": "관광지",
+        "distance": 132
+      },
+      {
+        "name": "Unknown",
+        "type": "음식점",
+        "distance": 137
+      },
+      {
+        "name": "GS25",
+        "type": "편의점",
+        "distance": 140
+      },
+      {
+        "name": "북촌3경 : 가회동 박물관길",
+        "type": "관광지",
+        "distance": 165
+      },
+      {
+        "name": "Unknown",
+        "type": "관광지",
+        "distance": 169
+      },
+      {
+        "name": "Kuma sushi",
+        "type": "음식점",
+        "distance": 175
+      }
+    ],
+    "transitInfo": {
+      "subway": [],
+      "bus": []
+    },
+    "source": "OSM",
+    "lastUpdated": "2025-11-26",
+    "dataQuality": "medium"
+  },
+  {
+    "id": "hotel_368601214",
+    "name": "골든폰드 게스트하우스",
+    "name_en": "Goldenpond Guest House",
+    "category": "게스트하우스",
+    "type": "숙박",
+    "address": {
+      "full": "서울특별시 종로구 창경궁로 240-15",
+      "city": "서울특별시",
+      "district": "종로구",
+      "street": "창경궁로 240-15"
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        126.999124,
+        37.5822042
+      ]
+    },
+    "keywords": [
+      "게스트하우스",
+      "골든폰드",
+      "비어 파라솔",
+      "창경궁",
+      "The 달콩달콩데이 대학로점",
+      "종로",
+      "깔리"
+    ],
+    "synonyms": [],
+    "relatedKeywords": [],
+    "rankScore": 100,
+    "popularity": 1000,
+    "reviewCount": 150,
+    "rating": 5.0,
+    "nearbyPOI": [
+      {
+        "name": "깔리",
+        "type": "음식점",
+        "distance": 30
+      },
+      {
+        "name": "The 달콩달콩데이 대학로점",
+        "type": "음식점",
+        "distance": 52
+      },
+      {
+        "name": "비어 파라솔",
+        "type": "음식점",
+        "distance": 59
+      },
+      {
+        "name": "아로포(ALOPHO)",
+        "type": "음식점",
+        "distance": 61
+      },
+      {
+        "name": "CU",
+        "type": "편의점",
+        "distance": 63
+      },
+      {
+        "name": "김가네",
+        "type": "음식점",
+        "distance": 64
+      },
+      {
+        "name": "CU",
+        "type": "편의점",
+        "distance": 67
+      },
+      {
+        "name": "호호식당",
+        "type": "음식점",
+        "distance": 88
+      },
+      {
+        "name": "오이지",
+        "type": "음식점",
+        "distance": 98
+      },
+      {
+        "name": "개미식당",
+        "type": "음식점",
+        "distance": 104
+      }
+    ],
+    "transitInfo": {
+      "subway": [],
+      "bus": []
+    },
+    "source": "OSM",
+    "lastUpdated": "2025-11-26",
+    "dataQuality": "medium"
+  },
+  {
+    "id": "hotel_368601221",
+    "name": "남산 게스트하우스",
+    "name_en": "Namsan Guest House",
+    "category": "게스트하우스",
+    "type": "숙박",
+    "address": {
+      "full": "",
+      "city": "서울특별시",
+      "district": "",
+      "street": ""
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        126.9897477,
+        37.5580701
+      ]
+    },
+    "keywords": [
+      "게스트하우스",
+      "한옥마을 전망대",
+      "세븐일레븐",
+      "남산",
+      "남산골식당"
+    ],
+    "synonyms": [],
+    "relatedKeywords": [],
+    "rankScore": 95,
+    "popularity": 950,
+    "reviewCount": 142,
+    "rating": 4.9,
+    "nearbyPOI": [
+      {
+        "name": "세븐일레븐",
+        "type": "편의점",
+        "distance": 204
+      },
+      {
+        "name": "남산골식당",
+        "type": "음식점",
+        "distance": 232
+      },
+      {
+        "name": "한옥마을 전망대",
+        "type": "관광지",
+        "distance": 241
+      },
+      {
+        "name": "목멱산방 본점",
+        "type": "음식점",
+        "distance": 251
+      },
+      {
+        "name": "진수성찬",
+        "type": "음식점",
+        "distance": 277
+      },
+      {
+        "name": "진수성찬",
+        "type": "음식점",
+        "distance": 302
+      },
+      {
+        "name": "재미랑",
+        "type": "관광지",
+        "distance": 305
+      },
+      {
+        "name": "남학당 Namhakdang",
+        "type": "관광지",
+        "distance": 311
+      },
+      {
+        "name": "퓨전",
+        "type": "음식점",
+        "distance": 319
+      },
+      {
+        "name": "원조남산왕돈까스",
+        "type": "음식점",
+        "distance": 329
+      }
+    ],
+    "transitInfo": {
+      "subway": [],
+      "bus": []
+    },
+    "source": "OSM",
+    "lastUpdated": "2025-11-26",
+    "dataQuality": "medium"
+  },
+  {
+    "id": "hotel_368601224",
+    "name": "열린게스트하우스",
+    "name_en": "Yeollin Guest House",
+    "category": "게스트하우스",
+    "type": "숙박",
+    "address": {
+      "full": "",
+      "city": "서울특별시",
+      "district": "",
+      "street": ""
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        127.003355,
+        37.588721
+      ]
+    },
+    "keywords": [
+      "게스트하우스",
+      "국시집",
+      "참이맛감자탕-24h",
+      "세븐일레븐",
+      "열린게스트하우스"
+    ],
+    "synonyms": [],
+    "relatedKeywords": [],
+    "rankScore": 100,
+    "popularity": 1000,
+    "reviewCount": 150,
+    "rating": 5.0,
+    "nearbyPOI": [
+      {
+        "name": "국시집",
+        "type": "음식점",
+        "distance": 95
+      },
+      {
+        "name": "참이맛감자탕-24h",
+        "type": "음식점",
+        "distance": 145
+      },
+      {
+        "name": "세븐일레븐",
+        "type": "편의점",
+        "distance": 147
+      },
+      {
+        "name": "Unknown",
+        "type": "음식점",
+        "distance": 173
+      },
+      {
+        "name": "스시산(신관)",
+        "type": "음식점",
+        "distance": 174
+      },
+      {
+        "name": "피자스쿨",
+        "type": "음식점",
+        "distance": 200
+      },
+      {
+        "name": "하단",
+        "type": "음식점",
+        "distance": 201
+      },
+      {
+        "name": "별미가정식집밥",
+        "type": "음식점",
+        "distance": 230
+      },
+      {
+        "name": "한성대입구",
+        "type": "지하철",
+        "distance": 231
+      },
+      {
+        "name": "CU",
+        "type": "편의점",
+        "distance": 238
+      }
+    ],
+    "transitInfo": {
+      "subway": [
+        "한성대입구 도보 2분"
+      ],
+      "bus": [
+        "버스 정류장 인근"
+      ]
+    },
+    "source": "OSM",
+    "lastUpdated": "2025-11-26",
+    "dataQuality": "medium"
+  },
+  {
+    "id": "hotel_368601232",
+    "name": "비원게스트하우스",
+    "name_en": "Beewon Guest House",
+    "category": "게스트하우스",
+    "type": "숙박",
+    "address": {
+      "full": "",
+      "city": "서울특별시",
+      "district": "",
+      "street": ""
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        126.989858,
+        37.576081
+      ]
+    },
+    "keywords": [
+      "게스트하우스",
+      "7.8(칠점팔)",
+      "비원게스트하우스",
+      "세븐일레븐"
+    ],
+    "synonyms": [],
+    "relatedKeywords": [],
+    "rankScore": 95,
+    "popularity": 950,
+    "reviewCount": 142,
+    "rating": 4.9,
+    "nearbyPOI": [
+      {
+        "name": "7.8(칠점팔)",
+        "type": "음식점",
+        "distance": 25
+      },
+      {
+        "name": "Unknown",
+        "type": "음식점",
+        "distance": 27
+      },
+      {
+        "name": "세븐일레븐",
+        "type": "편의점",
+        "distance": 37
+      },
+      {
+        "name": "Unknown",
+        "type": "음식점",
+        "distance": 48
+      },
+      {
+        "name": "Unknown",
+        "type": "음식점",
+        "distance": 52
+      },
+      {
+        "name": "윳 YOOT",
+        "type": "음식점",
+        "distance": 60
+      },
+      {
+        "name": "Unknown",
+        "type": "음식점",
+        "distance": 61
+      },
+      {
+        "name": "맛도리찬",
+        "type": "음식점",
+        "distance": 62
+      },
+      {
+        "name": "Unknown",
+        "type": "음식점",
+        "distance": 63
+      },
+      {
+        "name": "CU",
+        "type": "편의점",
+        "distance": 64
+      }
+    ],
+    "transitInfo": {
+      "subway": [],
+      "bus": []
+    },
+    "source": "OSM",
+    "lastUpdated": "2025-11-26",
+    "dataQuality": "medium"
+  },
+  {
+    "id": "hotel_368601235",
+    "name": "리앤노 게스트하우스",
+    "name_en": "Riaenno Guest House",
+    "category": "게스트하우스",
+    "type": "숙박",
+    "address": {
+      "full": "",
+      "city": "서울특별시",
+      "district": "",
+      "street": ""
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        126.9210206,
+        37.5614036
+      ]
+    },
+    "keywords": [
+      "게스트하우스",
+      "Sweet Sour Salt",
+      "리앤노",
+      "하나비",
+      "리틀파파포"
+    ],
+    "synonyms": [],
+    "relatedKeywords": [],
+    "rankScore": 95,
+    "popularity": 950,
+    "reviewCount": 142,
+    "rating": 4.9,
+    "nearbyPOI": [
+      {
+        "name": "Sweet Sour Salt",
+        "type": "음식점",
+        "distance": 45
+      },
+      {
+        "name": "리틀파파포",
+        "type": "음식점",
+        "distance": 70
+      },
+      {
+        "name": "하나비",
+        "type": "음식점",
+        "distance": 76
+      },
+      {
+        "name": "피자피오",
+        "type": "음식점",
+        "distance": 79
+      },
+      {
+        "name": "김밥세상",
+        "type": "음식점",
+        "distance": 81
+      },
+      {
+        "name": "진어참치",
+        "type": "음식점",
+        "distance": 81
+      },
+      {
+        "name": "따순밥꼬순전",
+        "type": "음식점",
+        "distance": 82
+      },
+      {
+        "name": "우리식당",
+        "type": "음식점",
+        "distance": 84
+      },
+      {
+        "name": "컬투치킨",
+        "type": "음식점",
+        "distance": 91
+      },
+      {
+        "name": "라멘 566",
+        "type": "음식점",
+        "distance": 92
+      }
+    ],
+    "transitInfo": {
+      "subway": [],
+      "bus": []
+    },
+    "source": "OSM",
+    "lastUpdated": "2025-11-26",
+    "dataQuality": "medium"
+  },
+  {
+    "id": "hotel_368601246",
+    "name": "카르페디엠 게스트하우스",
+    "name_en": "Kareupediem Guest House",
+    "category": "게스트하우스",
+    "type": "숙박",
+    "address": {
+      "full": "",
+      "city": "서울특별시",
+      "district": "",
+      "street": ""
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        126.921788,
+        37.558078
+      ]
+    },
+    "keywords": [
+      "게스트하우스",
+      "브런치가",
+      "GS25",
+      "카르페디엠"
+    ],
+    "synonyms": [],
+    "relatedKeywords": [],
+    "rankScore": 95,
+    "popularity": 950,
+    "reviewCount": 142,
+    "rating": 4.9,
+    "nearbyPOI": [
+      {
+        "name": "브런치가",
+        "type": "음식점",
+        "distance": 27
+      },
+      {
+        "name": "GS25",
+        "type": "편의점",
+        "distance": 42
+      },
+      {
+        "name": "Unknown",
+        "type": "음식점",
+        "distance": 78
+      },
+      {
+        "name": "치버킹",
+        "type": "음식점",
+        "distance": 79
+      },
+      {
+        "name": "닭장수김밥",
+        "type": "음식점",
+        "distance": 91
+      },
+      {
+        "name": "라룬비올렛",
+        "type": "음식점",
+        "distance": 95
+      },
+      {
+        "name": "올바른 스시",
+        "type": "음식점",
+        "distance": 97
+      },
+      {
+        "name": "Unknown",
+        "type": "음식점",
+        "distance": 112
+      },
+      {
+        "name": "스시엔준",
+        "type": "음식점",
+        "distance": 113
+      },
+      {
+        "name": "Unknown",
+        "type": "음식점",
+        "distance": 121
+      }
+    ],
+    "transitInfo": {
+      "subway": [],
+      "bus": []
+    },
+    "source": "OSM",
+    "lastUpdated": "2025-11-26",
+    "dataQuality": "medium"
+  },
+  {
+    "id": "hotel_368601270",
+    "name": "와우게스트하우스",
+    "name_en": "Wau Guest House",
+    "category": "게스트하우스",
+    "type": "숙박",
+    "address": {
+      "full": "",
+      "city": "서울특별시",
+      "district": "",
+      "street": ""
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        126.927352,
+        37.567113
+      ]
+    },
+    "keywords": [
+      "게스트하우스",
+      "와우게스트하우스",
+      "Daniel's kitchen",
+      "eMart24",
+      "봉쥬르 밥상"
+    ],
+    "synonyms": [],
+    "relatedKeywords": [],
+    "rankScore": 95,
+    "popularity": 950,
+    "reviewCount": 142,
+    "rating": 4.9,
+    "nearbyPOI": [
+      {
+        "name": "Daniel's kitchen",
+        "type": "음식점",
+        "distance": 70
+      },
+      {
+        "name": "eMart24",
+        "type": "편의점",
+        "distance": 82
+      },
+      {
+        "name": "봉쥬르 밥상",
+        "type": "음식점",
+        "distance": 101
+      },
+      {
+        "name": "함흥냉면전문점",
+        "type": "음식점",
+        "distance": 172
+      },
+      {
+        "name": "육정성",
+        "type": "음식점",
+        "distance": 176
+      },
+      {
+        "name": "지에스25",
+        "type": "편의점",
+        "distance": 183
+      },
+      {
+        "name": "청춘면가",
+        "type": "음식점",
+        "distance": 184
+      },
+      {
+        "name": "선굼터",
+        "type": "음식점",
+        "distance": 190
+      },
+      {
+        "name": "궁 개성만두",
+        "type": "음식점",
+        "distance": 206
+      },
+      {
+        "name": "본죽 비빔밥 cafe",
+        "type": "음식점",
+        "distance": 214
+      }
+    ],
+    "transitInfo": {
+      "subway": [],
+      "bus": []
+    },
+    "source": "OSM",
+    "lastUpdated": "2025-11-26",
+    "dataQuality": "medium"
+  },
+  {
+    "id": "hotel_368601283",
+    "name": "우리집게스트하우스",
+    "name_en": "Urijip Guest House",
+    "category": "게스트하우스",
+    "type": "숙박",
+    "address": {
+      "full": "서울특별시 종로구 계동길 33-13",
+      "city": "서울특별시",
+      "district": "종로구",
+      "street": "계동길 33-13"
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        126.986088,
+        37.5790149
+      ]
+    },
+    "keywords": [
+      "종로",
+      "게스트하우스",
+      "계동",
+      "우리집게스트하우스"
+    ],
+    "synonyms": [],
+    "relatedKeywords": [],
+    "rankScore": 100,
+    "popularity": 1000,
+    "reviewCount": 150,
+    "rating": 5.0,
+    "nearbyPOI": [
+      {
+        "name": "Unknown",
+        "type": "음식점",
+        "distance": 26
+      },
+      {
+        "name": "Unknown",
+        "type": "음식점",
+        "distance": 31
+      },
+      {
+        "name": "Unknown",
+        "type": "관광지",
+        "distance": 79
+      },
+      {
+        "name": "깡통만두",
+        "type": "음식점",
+        "distance": 95
+      },
+      {
+        "name": "Kuma sushi",
+        "type": "음식점",
+        "distance": 96
+      },
+      {
+        "name": "CU",
+        "type": "편의점",
+        "distance": 101
+      },
+      {
+        "name": "진작카키",
+        "type": "음식점",
+        "distance": 102
+      },
+      {
+        "name": "밀양손만두",
+        "type": "음식점",
+        "distance": 103
+      },
+      {
+        "name": "세븐일레븐",
+        "type": "편의점",
+        "distance": 124
+      },
+      {
+        "name": "GS25",
+        "type": "편의점",
+        "distance": 126
+      }
+    ],
+    "transitInfo": {
+      "subway": [],
+      "bus": []
+    },
+    "source": "OSM",
+    "lastUpdated": "2025-11-26",
+    "dataQuality": "medium"
+  },
+  {
+    "id": "hotel_368601356",
+    "name": "명동게스트하우스",
+    "name_en": "Myeongdong Guest House",
+    "category": "게스트하우스",
+    "type": "숙박",
+    "address": {
+      "full": "",
+      "city": "서울특별시",
+      "district": "",
+      "street": ""
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        126.987103,
+        37.560413
+      ]
+    },
+    "keywords": [
+      "게스트하우스",
+      "이마트24",
+      "명동게스트하우스",
+      "식당 진",
+      "미도리"
+    ],
+    "synonyms": [],
+    "relatedKeywords": [],
+    "rankScore": 100,
+    "popularity": 1000,
+    "reviewCount": 150,
+    "rating": 5.0,
+    "nearbyPOI": [
+      {
+        "name": "미도리",
+        "type": "음식점",
+        "distance": 49
+      },
+      {
+        "name": "이마트24",
+        "type": "편의점",
+        "distance": 50
+      },
+      {
+        "name": "식당 진",
+        "type": "음식점",
+        "distance": 57
+      },
+      {
+        "name": "명동",
+        "type": "지하철",
+        "distance": 83
+      },
+      {
+        "name": "세븐일레븐",
+        "type": "편의점",
+        "distance": 86
+      },
+      {
+        "name": "세븐일레븐",
+        "type": "편의점",
+        "distance": 96
+      },
+      {
+        "name": "세븐일레븐",
+        "type": "편의점",
+        "distance": 110
+      },
+      {
+        "name": "둘둘치킨",
+        "type": "음식점",
+        "distance": 135
+      },
+      {
+        "name": "사유의서재남산",
+        "type": "음식점",
+        "distance": 139
+      },
+      {
+        "name": "세븐일레븐",
+        "type": "편의점",
+        "distance": 143
+      }
+    ],
+    "transitInfo": {
+      "subway": [
+        "명동 도보 0분"
+      ],
+      "bus": [
+        "버스 정류장 인근"
+      ]
+    },
+    "source": "OSM",
+    "lastUpdated": "2025-11-26",
+    "dataQuality": "medium"
+  }
+]

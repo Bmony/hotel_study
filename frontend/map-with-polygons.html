@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🗺️ 호텔 + 목적지 폴리곤 지도</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .controls {
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        
+        .btn-secondary {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #38a169;
+        }
+        
+        .btn-polygon {
+            background: #ed8936;
+            color: white;
+        }
+        
+        .btn-polygon:hover {
+            background: #dd6b20;
+        }
+        
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+        
+        .stats {
+            padding: 8px 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .legend {
+            padding: 10px 15px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            font-size: 13px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 3px 0;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 2px solid #333;
+        }
+        
+        #map {
+            flex: 1;
+            width: 100%;
+        }
+        
+        .leaflet-popup-content {
+            margin: 10px;
+        }
+        
+        .popup-hotel-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+        
+        .popup-address {
+            font-size: 13px;
+            color: #718096;
+            margin-bottom: 8px;
+        }
+        
+        .popup-coords {
+            font-size: 12px;
+            color: #a0aec0;
+        }
+        
+        .popup-facilities {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        
+        .popup-facility {
+            background: #e6f2ff;
+            color: #667eea;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🗺️ 서울 호텔 + 목적지 폴리곤 지도</h1>
+        <p style="font-size: 14px; opacity: 0.9;">목적지 경계선을 확인하고 해당 영역의 호텔을 검색하세요</p>
+    </div>
+    
+    <div class="controls">
+        <input type="text" 
+               class="search-input" 
+               id="searchInput" 
+               placeholder="호텔 이름 또는 지역 검색..."
+               onkeypress="if(event.key==='Enter') searchHotels()">
+        <button class="btn-primary" onclick="searchHotels()">🔍 검색</button>
+        <button class="btn-polygon" onclick="togglePolygons()">🔷 폴리곤 ON/OFF</button>
+        <button class="btn-secondary" onclick="searchByDestination('강남')">강남 영역</button>
+        <button class="btn-secondary" onclick="searchByDestination('명동')">명동 영역</button>
+        <button class="btn-secondary" onclick="searchByDestination('홍대')">홍대 영역</button>
+        <button class="btn-secondary" onclick="searchByDestination('이태원')">이태원 영역</button>
+        <button class="btn-secondary" onclick="searchByDestination('잠실')">잠실 영역</button>
+        <button class="btn-danger" onclick="clearMarkers()">✕ 마커 지우기</button>
+        <div class="stats">
+            <span>호텔: <span class="stat-value" id="hotelCount">0</span>개</span>
+            <span style="margin-left: 15px;">응답: <span class="stat-value" id="responseTime">-</span></span>
+        </div>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: rgba(255,0,0,0.2); border-color: red;"></div>
+                <span>강남</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: rgba(0,0,255,0.2); border-color: blue;"></div>
+                <span>명동</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: rgba(0,255,0,0.2); border-color: green;"></div>
+                <span>홍대</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: rgba(255,165,0,0.2); border-color: orange;"></div>
+                <span>이태원</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: rgba(128,0,128,0.2); border-color: purple;"></div>
+                <span>잠실</span>
+            </div>
+        </div>
+    </div>
+    
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const ES_URL = 'http://localhost:9200';
+        let map;
+        let markers = [];
+        let polygons = [];
+        let polygonsVisible = true;
+        
+        const POLYGON_COLORS = {
+            '강남': 'red',
+            '명동': 'blue',
+            '홍대': 'green',
+            '이태원': 'orange',
+            '잠실': 'purple'
+        };
+        
+        // 지도 초기화
+        function initMap() {
+            map = L.map('map').setView([37.5665, 126.9780], 12);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+        }
+        
+        // 폴리곤 로드 및 표시
+        async function loadDestinations() {
+            try {
+                const response = await fetch(`${ES_URL}/destinations/_search`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        query: { match_all: {} },
+                        size: 10
+                    })
+                });
+                
+                const data = await response.json();
+                const destinations = data.hits.hits.map(h => h._source);
+                
+                destinations.forEach(dest => {
+                    const coords = dest.location.coordinates[0];
+                    const latLngs = coords.map(c => [c[1], c[0]]); // [lon, lat] → [lat, lon]
+                    
+                    const color = POLYGON_COLORS[dest.name] || 'gray';
+                    
+                    const polygon = L.polygon(latLngs, {
+                        color: color,
+                        fillColor: color,
+                        fillOpacity: 0.2,
+                        weight: 2
+                    }).addTo(map);
+                    
+                    polygon.bindPopup(`
+                        <div style="text-align: center;">
+                            <strong style="font-size: 16px;">📍 ${dest.name}</strong><br>
+                            <span style="font-size: 12px; color: #666;">타입: ${dest.type}</span><br>
+                            <button onclick="searchByDestination('${dest.name}')" 
+                                    style="margin-top: 8px; padding: 5px 15px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                이 영역 검색
+                            </button>
+                        </div>
+                    `);
+                    
+                    polygons.push(polygon);
+                });
+                
+                console.log(`✅ ${destinations.length}개 목적지 폴리곤 로드 완료`);
+                
+            } catch (error) {
+                console.error('폴리곤 로드 오류:', error);
+            }
+        }
+        
+        // 폴리곤 ON/OFF
+        function togglePolygons() {
+            polygonsVisible = !polygonsVisible;
+            polygons.forEach(polygon => {
+                if (polygonsVisible) {
+                    polygon.addTo(map);
+                } else {
+                    map.removeLayer(polygon);
+                }
+            });
+        }
+        
+        // 마커 추가
+        function addMarker(hotel) {
+            const marker = L.marker([hotel.location.lat, hotel.location.lon])
+                .addTo(map)
+                .bindPopup(`
+                    <div class="popup-hotel-name">${hotel.name}</div>
+                    <div class="popup-address">📍 ${hotel.address || hotel.city}</div>
+                    <div class="popup-coords">
+                        🌍 ${hotel.location.lat.toFixed(4)}, ${hotel.location.lon.toFixed(4)}
+                    </div>
+                    ${hotel.facilities && hotel.facilities.length > 0 ? `
+                        <div class="popup-facilities">
+                            ${hotel.facilities.map(f => `<span class="popup-facility">${f}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                `);
+            
+            markers.push(marker);
+        }
+        
+        // 마커 지우기
+        function clearMarkers() {
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+            updateStats(0, '-');
+        }
+        
+        // 통계 업데이트
+        function updateStats(count, time) {
+            document.getElementById('hotelCount').textContent = count;
+            document.getElementById('responseTime').textContent = time;
+        }
+        
+        // 텍스트 검색
+        async function searchHotels() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) {
+                alert('검색어를 입력하세요');
+                return;
+            }
+            
+            clearMarkers();
+            
+            try {
+                const response = await fetch(`${ES_URL}/hotels/_search`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        query: {
+                            multi_match: {
+                                query: query,
+                                fields: ["name", "address", "city"]
+                            }
+                        },
+                        size: 100
+                    })
+                });
+                
+                const data = await response.json();
+                const hotels = data.hits.hits.map(h => h._source);
+                
+                updateStats(hotels.length, data.took + 'ms');
+                
+                if (hotels.length === 0) {
+                    alert('검색 결과가 없습니다');
+                    return;
+                }
+                
+                hotels.forEach(hotel => addMarker(hotel));
+                
+                if (hotels.length > 0) {
+                    map.setView([hotels[0].location.lat, hotels[0].location.lon], 14);
+                }
+                
+            } catch (error) {
+                alert('검색 중 오류: ' + error.message);
+            }
+        }
+        
+        // 목적지별 검색 (폴리곤 내 호텔)
+        async function searchByDestination(destName) {
+            clearMarkers();
+            
+            try {
+                // 1. 목적지 정보 가져오기
+                const destResponse = await fetch(`${ES_URL}/destinations/_search`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        query: {
+                            match: { name: destName }
+                        }
+                    })
+                });
+                
+                const destData = await destResponse.json();
+                
+                if (destData.hits.hits.length === 0) {
+                    alert('목적지를 찾을 수 없습니다');
+                    return;
+                }
+                
+                const destination = destData.hits.hits[0]._source;
+                const coords = destination.location.coordinates[0];
+                
+                // 2. 폴리곤 내 호텔 검색
+                const hotelResponse = await fetch(`${ES_URL}/hotels/_search`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        query: {
+                            bool: {
+                                filter: {
+                                    geo_polygon: {
+                                        location: {
+                                            points: coords.map(c => ({ lat: c[1], lon: c[0] }))
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        size: 200
+                    })
+                });
+                
+                const hotelData = await hotelResponse.json();
+                const hotels = hotelData.hits.hits.map(h => h._source);
+                
+                updateStats(hotels.length, hotelData.took + 'ms');
+                
+                hotels.forEach(hotel => addMarker(hotel));
+                
+                // 해당 영역으로 이동
+                const centerLat = coords.reduce((sum, c) => sum + c[1], 0) / coords.length;
+                const centerLon = coords.reduce((sum, c) => sum + c[0], 0) / coords.length;
+                map.setView([centerLat, centerLon], 14);
+                
+                if (hotels.length === 0) {
+                    alert(`${destName} 영역에 호텔이 없습니다`);
+                }
+                
+            } catch (error) {
+                alert('검색 중 오류: ' + error.message);
+                console.error(error);
+            }
+        }
+        
+        // 초기화
+        initMap();
+        loadDestinations();
+    </script>
+</body>
+</html>

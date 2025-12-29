@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Elasticsearch data
+docker/es-data/
+
+# Large data files (optional - uncomment if files are too large)
+# data/raw/*.json
+# data/processed/*.json
+
+# Environment variables
+.env
+*.env
+.env.local
+
+# API Keys
+**/kakao_api_key.txt
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# Logs
+*.log
+logs/
+
+# Test outputs
+claudedocs/

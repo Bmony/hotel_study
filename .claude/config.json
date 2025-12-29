@@ -1,0 +1,8 @@
+{
+  "autoApprove": {
+    "enabled": true,
+    "paths": ["**/*"],
+    "exclude": [".git/**", "node_modules/**"],
+    "tools": ["Write", "Edit", "Bash", "Read", "MultiEdit", "NotebookEdit"]
+  }
+}
