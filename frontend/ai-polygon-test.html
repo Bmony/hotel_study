@@ -365,7 +365,7 @@
                 <h2>2️⃣ 자연어 명령으로 폴리곤 조정</h2>
                 <div class="input-group">
                     <label for="adjustCommand">조정 명령 입력</label>
-                    <input type="text" id="adjustCommand" placeholder="예: 500m 확장, 300m 축소" />
+                    <input type="text" id="adjustCommand" placeholder="예: 500m 확장, 평점 3점 이상, wifi 있는" />
                 </div>
                 <button id="adjustBtn" class="secondary-btn" disabled>폴리곤 조정</button>
 
@@ -374,6 +374,18 @@
                     <button class="quick-cmd" data-cmd="300m 축소">300m 축소</button>
                     <button class="quick-cmd" data-cmd="관광지 기준으로 변경">관광지 기준</button>
                     <button class="quick-cmd" data-cmd="200m 확장">200m 확장</button>
+                </div>
+
+                <h3 style="font-size: 14px; margin-top: 15px; margin-bottom: 8px; color: #666;">⭐ 호텔 속성 필터</h3>
+                <div class="quick-commands">
+                    <button class="quick-cmd" data-cmd="평점 3점 이상" style="background: #667eea;">⭐ 평점 3.0+</button>
+                    <button class="quick-cmd" data-cmd="평점 4점 이상" style="background: #667eea;">⭐ 평점 4.0+</button>
+                    <button class="quick-cmd" data-cmd="리뷰 50개 이상" style="background: #9f7aea;">📝 리뷰 50+</button>
+                    <button class="quick-cmd" data-cmd="리뷰 100개 이상" style="background: #9f7aea;">📝 리뷰 100+</button>
+                    <button class="quick-cmd" data-cmd="게스트하우스만" style="background: #48bb78;">🏠 게스트하우스</button>
+                    <button class="quick-cmd" data-cmd="호텔만" style="background: #48bb78;">🏨 호텔</button>
+                    <button class="quick-cmd" data-cmd="wifi 있는" style="background: #ed8936;">📶 WiFi</button>
+                    <button class="quick-cmd" data-cmd="주차 가능" style="background: #ed8936;">🅿️ 주차</button>
                 </div>
 
                 <div id="adjustResults" class="results" style="display: none;">

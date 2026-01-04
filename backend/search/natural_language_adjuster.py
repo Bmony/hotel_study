@@ -42,6 +42,22 @@ class NaturalLanguageAdjuster:
             r'(남|south)\s*방향': 'south',
             r'(동|east)\s*방향': 'east',
             r'(서|west)\s*방향': 'west',
+
+            # ===== 호텔 속성 필터 =====
+            # 평점 필터
+            r'평점\s*(\d+\.?\d*)\s*(점)?\s*(이상|초과)': 'rating_min',
+            r'평점\s*(\d+\.?\d*)\s*(점)?\s*(이하|미만)': 'rating_max',
+
+            # 리뷰 개수 필터
+            r'리뷰\s*(\d+)\s*(개)?\s*(이상|초과)': 'reviews_min',
+
+            # 카테고리 필터
+            r'(게스트하우스|호텔|모텔|리조트|펜션)\s*(만|only)': 'category_filter',
+
+            # 키워드 필터 (시설)
+            r'(wifi|무선인터넷|와이파이)\s*(있는|포함)': 'facility_wifi',
+            r'(주차|parking)\s*(가능|있는)': 'facility_parking',
+            r'(조식|breakfast)\s*(포함|제공)': 'facility_breakfast',
         }
 
         # Elasticsearch 연결
@@ -304,18 +320,16 @@ out center;
             return 0
 
         try:
-            coords = polygon_geojson['coordinates'][0]
-            points = [{'lat': c[1], 'lon': c[0]} for c in coords]
-
             response = self.es.search(
                 index='hotels',
                 body={
                     'query': {
                         'bool': {
                             'filter': {
-                                'geo_polygon': {
+                                'geo_shape': {
                                     'location': {
-                                        'points': points
+                                        'shape': polygon_geojson,
+                                        'relation': 'within'
                                     }
                                 }
                             }
@@ -331,15 +345,21 @@ out center;
             print(f"❌ 호텔 개수 조회 오류: {e}")
             return 0
 
-    def get_hotels_in_polygon(self, polygon_geojson: Dict) -> List[Dict]:
+    def get_hotels_in_polygon(self, polygon_geojson: Dict, filters: Dict = None) -> List[Dict]:
         """
         폴리곤 내 호텔 목록 가져오기 (위치 포함)
 
         Args:
             polygon_geojson: 폴리곤 GeoJSON
+            filters: 호텔 필터 조건 {
+                'rating_min': 3.0,
+                'reviews_min': 50,
+                'category': '게스트하우스',
+                'keywords': ['wifi', 'parking']
+            }
 
         Returns:
-            호텔 목록 [{'lat': ..., 'lon': ..., 'name': ...}, ...]
+            호텔 목록 [{'lat': ..., 'lon': ..., 'name': ..., 'rating': ..., ...}, ...]
         """
         if not self.es:
             return []
@@ -348,34 +368,84 @@ out center;
             coords = polygon_geojson['coordinates'][0]
             points = [{'lat': c[1], 'lon': c[0]} for c in coords]
 
-            response = self.es.search(
-                index='hotels',
-                body={
-                    'query': {
-                        'bool': {
-                            'filter': {
-                                'geo_polygon': {
-                                    'location': {
-                                        'points': points
-                                    }
+            print(f"🔍 폴리곤 좌표: {len(coords)}개")
+            print(f"   첫 좌표: {coords[0]}")
+
+            # geo_shape 쿼리 (geo_polygon보다 더 robust)
+            query = {
+                'bool': {
+                    'filter': [
+                        {
+                            'geo_shape': {
+                                'location': {
+                                    'shape': polygon_geojson,
+                                    'relation': 'within'
                                 }
                             }
                         }
-                    },
-                    'size': 1000,  # 충분히 큰 값
-                    '_source': ['name', 'location']
+                    ]
+                }
+            }
+
+            # 필터 조건 추가
+            if filters:
+                # 평점 최소값
+                if 'rating_min' in filters:
+                    query['bool']['filter'].append({
+                        'range': {'rating': {'gte': filters['rating_min']}}
+                    })
+
+                # 평점 최대값
+                if 'rating_max' in filters:
+                    query['bool']['filter'].append({
+                        'range': {'rating': {'lte': filters['rating_max']}}
+                    })
+
+                # 리뷰 개수 최소값
+                if 'reviews_min' in filters:
+                    query['bool']['filter'].append({
+                        'range': {'reviewCount': {'gte': filters['reviews_min']}}
+                    })
+
+                # 카테고리 필터
+                if 'category' in filters:
+                    query['bool']['filter'].append({
+                        'term': {'category.keyword': filters['category']}
+                    })
+
+                # 키워드 필터 (시설)
+                if 'keywords' in filters:
+                    for keyword in filters['keywords']:
+                        query['bool']['filter'].append({
+                            'match': {'keywords': keyword}
+                        })
+
+            response = self.es.search(
+                index='hotels',
+                body={
+                    'query': query,
+                    'size': 1000,
+                    '_source': ['name', 'location', 'rating', 'reviewCount', 'category', 'keywords']
                 }
             )
 
+            print(f"📊 Elasticsearch 응답: {response['hits']['total']['value']}개 호텔")
+
             hotels = []
             for hit in response['hits']['hits']:
-                loc = hit['_source']['location']
+                src = hit['_source']
+                loc = src['location']
                 hotels.append({
                     'lat': loc['coordinates'][1],
                     'lon': loc['coordinates'][0],
-                    'name': hit['_source'].get('name', 'Unknown')
+                    'name': src.get('name', 'Unknown'),
+                    'rating': src.get('rating', 0),
+                    'reviewCount': src.get('reviewCount', 0),
+                    'category': src.get('category', ''),
+                    'keywords': src.get('keywords', [])
                 })
 
+            print(f"✅ 호텔 목록 생성: {len(hotels)}개")
             return hotels
 
         except Exception as e:
@@ -738,6 +808,110 @@ out center;
             print(f"\n✅ 최종: {final_count}개 호텔 (목표 {target_count}개, 차이 {abs(final_count - target_count)}개)")
             return best_polygon
 
+    def adjust_by_hotel_attributes(self, polygon_geojson: Dict, command: str) -> Tuple[Dict, List[str]]:
+        """
+        호텔 속성 기반 폴리곤 조정
+
+        예: "평점 3점 이상", "게스트하우스만", "wifi 있는 호텔"
+
+        Args:
+            polygon_geojson: 원본 폴리곤
+            command: 자연어 명령
+
+        Returns:
+            (조정된 폴리곤 GeoJSON, 선택된 호텔 이름 리스트)
+        """
+        if not self.es:
+            print("⚠️ Elasticsearch 연결 없음")
+            return polygon_geojson, []
+
+        parsed = self.parse_command(command)
+        action = parsed.get('action')
+        value = parsed.get('value')
+
+        filters = {}
+
+        # 필터 조건 생성
+        if action == 'rating_min':
+            filters['rating_min'] = float(value) if value else 3.0
+            print(f"🎯 필터: 평점 {filters['rating_min']}점 이상")
+
+        elif action == 'rating_max':
+            filters['rating_max'] = float(value) if value else 5.0
+            print(f"🎯 필터: 평점 {filters['rating_max']}점 이하")
+
+        elif action == 'reviews_min':
+            filters['reviews_min'] = int(value) if value else 50
+            print(f"🎯 필터: 리뷰 {filters['reviews_min']}개 이상")
+
+        elif action == 'category_filter':
+            # 정규식에서 캡처한 카테고리 추출
+            match = re.search(r'(게스트하우스|호텔|모텔|리조트|펜션)', command)
+            if match:
+                filters['category'] = match.group(1)
+                print(f"🎯 필터: {filters['category']}만")
+
+        elif action == 'facility_wifi':
+            filters['keywords'] = ['wifi', 'WiFi', '무선인터넷']
+            print(f"🎯 필터: WiFi 있는 호텔")
+
+        elif action == 'facility_parking':
+            filters['keywords'] = ['주차', 'parking']
+            print(f"🎯 필터: 주차 가능한 호텔")
+
+        elif action == 'facility_breakfast':
+            filters['keywords'] = ['조식', 'breakfast']
+            print(f"🎯 필터: 조식 제공 호텔")
+
+        else:
+            print("⚠️ 알 수 없는 필터 조건")
+            return polygon_geojson, []
+
+        # 필터 적용하여 호텔 검색
+        hotels = self.get_hotels_in_polygon(polygon_geojson, filters)
+
+        if not hotels:
+            print(f"❌ 조건에 맞는 호텔이 없습니다")
+            return polygon_geojson, []
+
+        print(f"✅ 조건에 맞는 호텔: {len(hotels)}개")
+
+        # 호텔 정보 출력 (상위 3개)
+        for i, hotel in enumerate(hotels[:3], 1):
+            print(f"   {i}. {hotel['name']} - ⭐{hotel['rating']} (리뷰 {hotel['reviewCount']}개)")
+
+        # 필터된 호텔 위치로 폴리곤 생성
+        if len(hotels) == 1:
+            # 호텔이 1개만 있으면 그 위치를 중심으로 작은 폴리곤 생성
+            point = Point(hotels[0]['lon'], hotels[0]['lat'])
+            buffered = point.buffer(0.002)  # 약 200m 버퍼
+        elif len(hotels) == 2:
+            # 호텔이 2개면 선분으로 폴리곤 생성
+            from shapely.geometry import LineString
+            line = LineString([(h['lon'], h['lat']) for h in hotels])
+            buffered = line.buffer(0.002)
+        else:
+            # 3개 이상이면 Convex Hull 사용
+            points = [Point(h['lon'], h['lat']) for h in hotels]
+            multipoint = MultiPoint(points)
+            hull = multipoint.convex_hull
+            buffered = hull.buffer(0.002)  # 약 200m 버퍼
+
+        if buffered.geom_type == 'Polygon':
+            coords = [list(buffered.exterior.coords)]
+        else:
+            coords = [list(buffered.exterior.coords)] if hasattr(buffered, 'exterior') else [[]]
+
+        new_polygon = {
+            'type': 'Polygon',
+            'coordinates': coords
+        }
+
+        hotel_names = [h['name'] for h in hotels]
+        print(f"🎯 필터링된 호텔 목록: {len(hotel_names)}개")
+
+        return new_polygon, hotel_names
+
     def adjust_polygon(self, polygon_geojson: Dict, command: str) -> Tuple[Dict, List[str]]:
         """
         자연어 명령으로 폴리곤 조정 (메인 함수)
@@ -751,6 +925,11 @@ out center;
         """
         parsed = self.parse_command(command)
         action = parsed.get('action')
+
+        # 호텔 속성 필터 처리
+        if action in ['rating_min', 'rating_max', 'reviews_min', 'category_filter',
+                      'facility_wifi', 'facility_parking', 'facility_breakfast']:
+            return self.adjust_by_hotel_attributes(polygon_geojson, command)
 
         if action == 'expand':
             distance = parsed.get('value', 500)
