@@ -1,8 +1,29 @@
 # 호텔 검색 시스템 - 데이터 파이프라인 완벽 가이드
 
 > 🎯 **목적**: OpenStreetMap 데이터를 활용한 서울 호텔 검색 시스템 구축
-> 📅 **최종 업데이트**: 2025-11-28
+> 📅 **최종 업데이트**: 2025-01-04
 > 🏗️ **아키텍처**: OSM → 데이터 강화 → Elasticsearch 인덱싱
+
+---
+
+## 🚀 빠른 시작
+
+### 새 컴퓨터에서 처음 설정하기
+[📘 SETUP_GUIDE.md](./SETUP_GUIDE.md) - 처음부터 설치하는 완전한 가이드
+
+```bash
+# 자동 설치 스크립트
+./quick_start.sh
+```
+
+### 이미 설정된 환경에서 실행
+```bash
+# Elasticsearch 실행
+cd docker && docker-compose up -d
+
+# 로컬 웹 페이지 열기
+./run_local.sh
+```
 
 ---
 
