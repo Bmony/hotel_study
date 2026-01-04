@@ -347,8 +347,8 @@
                         <div class="hotel-name">${hotel.name || 'Unknown Hotel'}</div>
                         <div class="hotel-address">📍 ${hotel.address || hotel.city || '주소 정보 없음'}</div>
                         <div class="hotel-location">
-                            <span>🌍 위도: ${hotel.location.lat.toFixed(4)}</span>
-                            <span>🌍 경도: ${hotel.location.lon.toFixed(4)}</span>
+                            <span>🌍 위도: ${hotel.location.coordinates[1].toFixed(4)}</span>
+                            <span>🌍 경도: ${hotel.location.coordinates[0].toFixed(4)}</span>
                             ${hotel.rating ? `<span>⭐ ${hotel.rating}성급</span>` : ''}
                         </div>
                         ${hotel.facilities && hotel.facilities.length > 0 ? `

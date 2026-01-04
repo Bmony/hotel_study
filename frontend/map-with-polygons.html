@@ -312,21 +312,25 @@
         
         // 마커 추가
         function addMarker(hotel) {
-            const marker = L.marker([hotel.location.lat, hotel.location.lon])
+            const coords = hotel.location.coordinates;
+            const lat = coords[1];
+            const lon = coords[0];
+
+            const marker = L.marker([lat, lon])
                 .addTo(map)
                 .bindPopup(`
                     <div class="popup-hotel-name">${hotel.name}</div>
-                    <div class="popup-address">📍 ${hotel.address || hotel.city}</div>
+                    <div class="popup-address">📍 ${hotel.address?.full || hotel.address || '주소 정보 없음'}</div>
                     <div class="popup-coords">
-                        🌍 ${hotel.location.lat.toFixed(4)}, ${hotel.location.lon.toFixed(4)}
+                        🌍 ${lat.toFixed(4)}, ${lon.toFixed(4)}
                     </div>
-                    ${hotel.facilities && hotel.facilities.length > 0 ? `
+                    ${hotel.nearbyPOI && hotel.nearbyPOI.length > 0 ? `
                         <div class="popup-facilities">
-                            ${hotel.facilities.map(f => `<span class="popup-facility">${f}</span>`).join('')}
+                            ${hotel.nearbyPOI.slice(0, 3).map(poi => `<span class="popup-facility">${poi.name}</span>`).join('')}
                         </div>
                     ` : ''}
                 `);
-            
+
             markers.push(marker);
         }
         
@@ -379,9 +383,10 @@
                 }
                 
                 hotels.forEach(hotel => addMarker(hotel));
-                
+
                 if (hotels.length > 0) {
-                    map.setView([hotels[0].location.lat, hotels[0].location.lon], 14);
+                    const firstCoords = hotels[0].location.coordinates;
+                    map.setView([firstCoords[1], firstCoords[0]], 14);
                 }
                 
             } catch (error) {
